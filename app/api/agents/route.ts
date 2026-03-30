@@ -42,7 +42,7 @@ export async function GET() {
   try {
     const latestBlock = await publicClient.getBlockNumber();
     // Scan last ~200k blocks (roughly 2 weeks on Arc)
-    const fromBlock = latestBlock > 200000n ? latestBlock - 200000n : 0n;
+    const fromBlock = latestBlock > 10000n ? latestBlock - 10000n : 0n;
 
     // Step 1: Get all registered agents via Transfer(0x0 -> owner) events
     const transferLogs = await scanLogs(

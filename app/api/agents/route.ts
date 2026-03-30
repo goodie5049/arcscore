@@ -6,7 +6,7 @@ import {
   REPUTATION_REGISTRY,
   identityAbi,
 } from "@/lib/arc";
-
+export const dynamic = "force-dynamic";
 export const revalidate = 60; // cache for 60 seconds
 
 const BLOCK_CHUNK = 9000n; // stay under 10k RPC limit

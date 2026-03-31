@@ -3,7 +3,7 @@ import { arcTestnet } from "viem/chains";
 
 export const publicClient = createPublicClient({
   chain: arcTestnet,
-  transport: http("https://5042002.rpc.thirdweb.com"),
+  transport: http("https://rpc.testnet.arc.network"),
 });
 
 export const IDENTITY_REGISTRY =

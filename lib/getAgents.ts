@@ -56,32 +56,33 @@ export async function getAgentData() {
     if (tag) entry.tags.push(tag);
   }
 
-  const agents = await Promise.all(
-    agentIds.map(async (agentId) => {
-      const id = String(agentId);
-      const repData = scoreMap.get(id);
-      let owner = "0x???";
-      try {
-        owner = await publicClient.readContract({
-          address: IDENTITY_REGISTRY,
-          abi: identityAbi,
-          functionName: "ownerOf",
-          args: [agentId],
-        }) as string;
-      } catch {}
+  const ownerResults = await publicClient.multicall({
+    contracts: agentIds.map((agentId) => ({
+      address: IDENTITY_REGISTRY,
+      abi: identityAbi,
+      functionName: "ownerOf" as const,
+      args: [agentId],
+    })),
+  });
 
-      const scores = repData?.scores ?? [];
-      const avgScore = scores.length > 0
-        ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length)
-        : 0;
+  const agents = agentIds.map((agentId, index) => {
+    const id = String(agentId);
+    const repData = scoreMap.get(id);
+    const owner = ownerResults[index].status === "success"
+      ? (ownerResults[index].result as string)
+      : "0x???";
 
-      const tagFreq: Record<string, number> = {};
-      for (const tag of repData?.tags ?? []) tagFreq[tag] = (tagFreq[tag] ?? 0) + 1;
-      const topTags = Object.entries(tagFreq).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([t]) => t);
+    const scores = repData?.scores ?? [];
+    const avgScore = scores.length > 0
+      ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length)
+      : 0;
 
-      return { agentId: id, owner, metadataURI: "", avgScore, feedbackCount: repData?.feedbackCount ?? 0, topTags };
-    })
-  );
+    const tagFreq: Record<string, number> = {};
+    for (const tag of repData?.tags ?? []) tagFreq[tag] = (tagFreq[tag] ?? 0) + 1;
+    const topTags = Object.entries(tagFreq).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([t]) => t);
+
+    return { agentId: id, owner, metadataURI: "", avgScore, feedbackCount: repData?.feedbackCount ?? 0, topTags };
+  });
 
   const ranked = agents
     .sort((a, b) => b.avgScore !== a.avgScore ? b.avgScore - a.avgScore : b.feedbackCount - a.feedbackCount)

@@ -31,7 +31,7 @@ export async function getAgentData() {
   ]);
 
   if (transferLogs.length === 0) {
-    return { agents: [], totalAgents: 0, scannedBlocks: Number(10000n), latestBlock: Number(latestBlock) };
+    return { agents: [], totalAgents: 0, scannedBlocks: 10000, latestBlock: Number(latestBlock) };
   }
 
   const agentIds = [
@@ -56,21 +56,22 @@ export async function getAgentData() {
     if (tag) entry.tags.push(tag);
   }
 
-  const ownerResults = await publicClient.multicall({
-    contracts: agentIds.map((agentId) => ({
-      address: IDENTITY_REGISTRY,
-      abi: identityAbi,
-      functionName: "ownerOf" as const,
-      args: [agentId],
-    })),
-  });
+  // Fetch all owners in parallel (no multicall needed)
+  const owners = await Promise.all(
+    agentIds.map((agentId) =>
+      publicClient.readContract({
+        address: IDENTITY_REGISTRY,
+        abi: identityAbi,
+        functionName: "ownerOf",
+        args: [agentId],
+      }).then((r) => r as string).catch(() => "0x???")
+    )
+  );
 
   const agents = agentIds.map((agentId, index) => {
     const id = String(agentId);
     const repData = scoreMap.get(id);
-    const owner = ownerResults[index].status === "success"
-      ? (ownerResults[index].result as string)
-      : "0x???";
+    const owner = owners[index];
 
     const scores = repData?.scores ?? [];
     const avgScore = scores.length > 0

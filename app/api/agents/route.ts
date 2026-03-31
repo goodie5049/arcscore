@@ -12,7 +12,7 @@ export const dynamic = "force-dynamic";
 export async function GET() {
   try {
     const latestBlock = await publicClient.getBlockNumber();
-    const fromBlock = latestBlock > 2000n ? latestBlock - 2000n : 0n; // smaller range = faster
+    const fromBlock = latestBlock > 50000n ? latestBlock - 50000n : 0n;
 
     // Get Transfer + Feedback logs in PARALLEL
     const [transferLogs, feedbackLogs] = await Promise.all([
@@ -69,12 +69,13 @@ export async function GET() {
         const repData = scoreMap.get(id);
         let owner = "0x???";
         try {
-          owner = await publicClient.readContract({
+          const result = await publicClient.readContract({
             address: IDENTITY_REGISTRY,
             abi: identityAbi,
             functionName: "ownerOf",
             args: [agentId],
-          }) as string;
+          });
+          owner = result as string;
         } catch {}
 
         const scores = repData?.scores ?? [];

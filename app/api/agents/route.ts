@@ -12,7 +12,7 @@ export const dynamic = "force-dynamic";
 export async function GET() {
   try {
     const latestBlock = await publicClient.getBlockNumber();
-    const fromBlock = latestBlock > 50000n ? latestBlock - 50000n : 0n;
+    const fromBlock = latestBlock > 3000n ? latestBlock - 3000n : 0n;
 
     // Get Transfer + Feedback logs in PARALLEL
     const [transferLogs, feedbackLogs] = await Promise.all([

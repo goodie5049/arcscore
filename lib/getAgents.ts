@@ -3,7 +3,6 @@ import {
   publicClient,
   IDENTITY_REGISTRY,
   REPUTATION_REGISTRY,
-  identityAbi,
 } from "@/lib/arc";
 
 export async function getAgentData() {
@@ -42,6 +41,17 @@ export async function getAgentData() {
     ),
   ];
 
+  // Build owner map from Transfer logs — no extra RPC call needed
+  const tokenOwnerMap = new Map<string, string>();
+  for (const log of transferLogs) {
+    const args = (log as any).args;
+    if (!args) continue;
+    const tokenId = String(args.tokenId as bigint);
+    const to = args.to as string;
+    if (to) tokenOwnerMap.set(tokenId, to);
+  }
+
+  // Build score map from feedback logs
   const scoreMap = new Map<string, { scores: number[]; tags: string[]; feedbackCount: number }>();
   for (const log of feedbackLogs) {
     const args = (log as any).args;
@@ -56,22 +66,10 @@ export async function getAgentData() {
     if (tag) entry.tags.push(tag);
   }
 
-  // Fetch all owners in parallel (no multicall needed)
-  const owners = await Promise.all(
-    agentIds.map((agentId) =>
-      publicClient.readContract({
-        address: IDENTITY_REGISTRY,
-        abi: identityAbi,
-        functionName: "ownerOf",
-        args: [agentId],
-      }).then((r) => r as string).catch(() => "0x???")
-    )
-  );
-
-  const agents = agentIds.map((agentId, index) => {
+  const agents = agentIds.map((agentId) => {
     const id = String(agentId);
     const repData = scoreMap.get(id);
-    const owner = owners[index];
+    const owner = tokenOwnerMap.get(id) ?? "0x???";
 
     const scores = repData?.scores ?? [];
     const avgScore = scores.length > 0

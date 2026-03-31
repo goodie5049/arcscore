@@ -1,9 +1,24 @@
-import { createPublicClient, http } from "viem";
-import { arcTestnet } from "viem/chains";
+import { createPublicClient, http, defineChain } from "viem";
+
+const arcTestnet = defineChain({
+  id: 5042002,
+  name: "Arc Testnet",
+  nativeCurrency: { name: "USDC", symbol: "USDC", decimals: 6 },
+  rpcUrls: {
+    default: { http: ["https://arc-testnet.drpc.org"] },
+  },
+  blockExplorers: {
+    default: { name: "ArcScan", url: "https://testnet.arcscan.app" },
+  },
+  testnet: true,
+});
 
 export const publicClient = createPublicClient({
   chain: arcTestnet,
-  transport: http("https://rpc.testnet.arc.network"),
+  transport: http("https://arc-testnet.drpc.org", {
+    timeout: 8000, // 8s timeout so Vercel doesn't hang
+    retryCount: 2,
+  }),
 });
 
 export const IDENTITY_REGISTRY =
@@ -15,36 +30,4 @@ export const REPUTATION_REGISTRY =
 export const VALIDATION_REGISTRY =
   "0x8004Cb1BF31DAf7788923b405b754f57acEB4272" as const;
 
-export const identityAbi = [
-  {
-    name: "ownerOf",
-    type: "function",
-    stateMutability: "view",
-    inputs: [{ name: "tokenId", type: "uint256" }],
-    outputs: [{ name: "", type: "address" }],
-  },
-  {
-    name: "tokenURI",
-    type: "function",
-    stateMutability: "view",
-    inputs: [{ name: "tokenId", type: "uint256" }],
-    outputs: [{ name: "", type: "string" }],
-  },
-] as const;
-
-export const validationAbi = [
-  {
-    name: "getValidationStatus",
-    type: "function",
-    stateMutability: "view",
-    inputs: [{ name: "requestHash", type: "bytes32" }],
-    outputs: [
-      { name: "validatorAddress", type: "address" },
-      { name: "agentId", type: "uint256" },
-      { name: "response", type: "uint8" },
-      { name: "responseHash", type: "bytes32" },
-      { name: "tag", type: "string" },
-      { name: "lastUpdate", type: "uint256" },
-    ],
-  },
-] as const;
+// ... rest of your ABIs stay exactly the same

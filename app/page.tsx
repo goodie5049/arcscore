@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 
-const MAINNET_DATE = new Date("2026-12-31T00:00:00Z");
 
 const MILESTONES = [
   { date: "Aug 2025", label: "Arc announced as Economic OS", done: true },
@@ -21,28 +20,6 @@ const PARTNERS = [
   "MetaMask", "Ledger", "Chainlink", "LayerZero", "Alchemy",
 ];
 
-function useCountdown() {
-  const [time, setTime] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
-
-  useEffect(() => {
-    const tick = () => {
-      const now = new Date();
-      const diff = MAINNET_DATE.getTime() - now.getTime();
-      if (diff <= 0) return;
-      setTime({
-        days: Math.floor(diff / 86400000),
-        hours: Math.floor((diff % 86400000) / 3600000),
-        minutes: Math.floor((diff % 3600000) / 60000),
-        seconds: Math.floor((diff % 60000) / 1000),
-      });
-    };
-    tick();
-    const id = setInterval(tick, 1000);
-    return () => clearInterval(id);
-  }, []);
-
-  return time;
-}
 
 function useLiveStats() {
   const [stats, setStats] = useState({
@@ -64,64 +41,9 @@ function useLiveStats() {
   return stats;
 }
 
-function CountdownUnit({ value, label }: { value: number; label: string }) {
-  const display = String(value).padStart(2, "0");
-  return (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "8px" }}>
-      <div
-        style={{
-          background: "rgba(240,165,0,0.06)",
-          border: "1px solid rgba(240,165,0,0.2)",
-          borderRadius: "12px",
-          padding: "20px 28px",
-          minWidth: "100px",
-          textAlign: "center",
-          position: "relative",
-          overflow: "hidden",
-        }}
-      >
-        <div
-          style={{
-            position: "absolute",
-            inset: 0,
-            background: "linear-gradient(180deg, rgba(240,165,0,0.04) 0%, transparent 100%)",
-          }}
-        />
-        <span
-          style={{
-            fontFamily: "'JetBrains Mono', monospace",
-            fontSize: "clamp(36px, 5vw, 56px)",
-            fontWeight: 700,
-            color: "#f0a500",
-            letterSpacing: "-0.04em",
-            lineHeight: 1,
-            textShadow: "0 0 30px rgba(240,165,0,0.4)",
-            display: "block",
-            position: "relative",
-          }}
-        >
-          {display}
-        </span>
-      </div>
-      <span
-        style={{
-          fontFamily: "'JetBrains Mono', monospace",
-          fontSize: "10px",
-          color: "#3d5166",
-          letterSpacing: "0.2em",
-          textTransform: "uppercase",
-        }}
-      >
-        {label}
-      </span>
-    </div>
-  );
-}
 
 export default function HomePage() {
-  const { days, hours, minutes, seconds } = useCountdown();
   const stats = useLiveStats();
-  const [copied, setCopied] = useState(false);
   const [tickerPos, setTickerPos] = useState(0);
 
   useEffect(() => {
@@ -132,7 +54,7 @@ export default function HomePage() {
   }, []);
 
   const handleShare = () => {
-    const tweet = `Arc Mainnet is coming 🔥\n\n${days} days away.\n\n📦 Block #${stats.latestBlock.toLocaleString()}\n🤖 ${stats.totalAgents} ERC-8004 agents registered\n\ntrack the countdown → arcscore.vercel.app\n\n@arc_network @circle #ArcNetwork #ERC8004`;
+    const tweet = `Arc Mainnet is coming 🔥\n\nMainnet date: TBA\n\n📦 Block #${stats.latestBlock.toLocaleString()}\n\ntrack it live → arcscore.vercel.app\n\n@arc_network @circle #ArcNetwork #ERC8004`;
     window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(tweet)}`, "_blank");
   };
 
@@ -359,31 +281,55 @@ export default function HomePage() {
           sub-second settlement, AI-ready. The mainnet launch will change everything.
         </p>
 
-        {/* Countdown */}
-        <div
-          style={{
-            display: "flex",
-            gap: "16px",
-            justifyContent: "center",
-            flexWrap: "wrap",
-            marginBottom: "48px",
-          }}
-        >
-          <CountdownUnit value={days} label="Days" />
-          <div style={{ display: "flex", alignItems: "center", paddingBottom: "28px" }}>
-            <span style={{ color: "rgba(240,165,0,0.3)", fontSize: "40px", fontFamily: "'JetBrains Mono', monospace", animation: "pulse 1s infinite" }}>:</span>
-          </div>
-          <CountdownUnit value={hours} label="Hours" />
-          <div style={{ display: "flex", alignItems: "center", paddingBottom: "28px" }}>
-            <span style={{ color: "rgba(240,165,0,0.3)", fontSize: "40px", fontFamily: "'JetBrains Mono', monospace", animation: "pulse 1s infinite" }}>:</span>
-          </div>
-          <CountdownUnit value={minutes} label="Minutes" />
-          <div style={{ display: "flex", alignItems: "center", paddingBottom: "28px" }}>
-            <span style={{ color: "rgba(240,165,0,0.3)", fontSize: "40px", fontFamily: "'JetBrains Mono', monospace", animation: "pulse 1s infinite" }}>:</span>
-          </div>
-          <CountdownUnit value={seconds} label="Seconds" />
-        </div>
-
+        {/* Mainnet TBA */}
+<div
+  style={{
+    display: "inline-flex",
+    alignItems: "center",
+    gap: "12px",
+    background: "rgba(240,165,0,0.06)",
+    border: "1px solid rgba(240,165,0,0.2)",
+    borderRadius: "12px",
+    padding: "20px 40px",
+    marginBottom: "48px",
+  }}
+>
+  <div
+    style={{
+      width: 10,
+      height: 10,
+      borderRadius: "50%",
+      background: "#f0a500",
+      boxShadow: "0 0 12px rgba(240,165,0,0.6)",
+      animation: "pulse 2s infinite",
+      flexShrink: 0,
+    }}
+  />
+  <div>
+    <div
+      style={{
+        fontFamily: "'JetBrains Mono', monospace",
+        fontSize: "clamp(20px, 3vw, 32px)",
+        fontWeight: 700,
+        color: "#f0a500",
+        letterSpacing: "-0.02em",
+      }}
+    >
+      MAINNET DATE: TBA
+    </div>
+    <div
+      style={{
+        fontFamily: "'JetBrains Mono', monospace",
+        fontSize: "11px",
+        color: "#3d5166",
+        letterSpacing: "0.15em",
+        marginTop: "4px",
+      }}
+    >
+      OFFICIAL ANNOUNCEMENT COMING FROM @ARC_NETWORK
+    </div>
+  </div>
+</div>
         {/* CTA Buttons */}
         <div style={{ display: "flex", gap: "12px", justifyContent: "center", flexWrap: "wrap" }}>
           <button

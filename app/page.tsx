@@ -326,7 +326,7 @@ export default function HomePage() {
         marginTop: "4px",
       }}
     >
-      OFFICIAL ANNOUNCEMENT COMING FROM @ARC_NETWORK
+      OFFICIAL ANNOUNCEMENT COMING FROM @ARC
     </div>
   </div>
 </div>
